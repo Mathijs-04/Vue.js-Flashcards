@@ -1,29 +1,22 @@
 <script setup>
-import {ref} from 'vue'
-
-const count = ref(0);
+  defineProps(['subject'])
 </script>
 
 <template>
-  <button :class="count % 2 === 0 ? 'button1' : 'button2'" @click="count++">
-    Flashcard
-  </button>
+  <div>
+    {{ subject }}
+  </div>
 </template>
 
 <style scoped>
-.button1 {
-  color: #35495e;
-  background-color: #42b883;
-  padding: 1rem;
-  border-radius: 1rem;
-  border: #35495e solid 0.2rem;
-}
-
-.button2 {
+div {
+  height: 10rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  font-size: 4rem;
+  font-weight: bold;
   color: #42b883;
-  background-color: #35495e;
-  padding: 1rem;
-  border-radius: 1rem;
   border: #42b883 solid 0.2rem;
+  border-radius: 1rem;
 }
 </style>
