@@ -12,7 +12,7 @@
 div {
   height: 10rem;
   margin-top: 3rem;
-  padding-top: 2rem;
+  padding: 3rem 2rem 2rem 2rem;
   font-size: 4rem;
   font-weight: bold;
   color: #42b883;
