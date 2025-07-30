@@ -1,22 +1,19 @@
 <script setup>
-  defineProps(['subject'])
+defineProps({
+  flashcard: {
+    type: Object,
+    default: () => ({ question: '', answer: '' })
+  }
+});
 </script>
 
 <template>
-  <div>
-    {{ subject }}
+  <div v-if="flashcard && flashcard.question" class="flashcard">
+    <div class="question">Q: {{ flashcard.question }}</div>
+    <div class="answer">A: {{ flashcard.answer }}</div>
   </div>
 </template>
 
 <style scoped>
-div {
-  height: 10rem;
-  margin-top: 3rem;
-  padding: 3rem 2rem 2rem 2rem;
-  font-size: 4rem;
-  font-weight: bold;
-  color: #42b883;
-  border: #42b883 solid 0.2rem;
-  border-radius: 1rem;
-}
+
 </style>
