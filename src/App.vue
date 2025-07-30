@@ -3,6 +3,7 @@ import FlashCard from "./components/FlashCard.vue";
 import HomePage from "./components/HomePage.vue";
 import Input from "./components/Input.vue";
 import {ref} from "vue";
+import ExampleLlm from "./components/ExampleLLM.vue";
 
 const showFlashCard = ref(false)
 const subject = ref('');
@@ -14,9 +15,7 @@ function handleFlashcardSubmit(value) {
 </script>
 
 <template>
-  <HomePage/>
-  <Input @form-submitted="handleFlashcardSubmit"/>
-  <FlashCard v-if="showFlashCard" v-bind:subject="subject"/>
+<!--  <ExampleLlm/>-->
 </template>
 
 <style scoped>
