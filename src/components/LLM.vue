@@ -124,5 +124,6 @@ progress {
   width: 100%;
   height: 8px;
   margin: 0.5rem 0;
+  background-color: #35495e;
 }
 </style>
