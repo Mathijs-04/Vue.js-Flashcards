@@ -1,6 +1,6 @@
 <script setup>
-import { CreateMLCEngine } from "@mlc-ai/web-llm";
-import { ref, onMounted, watch } from "vue";
+import {CreateMLCEngine} from "@mlc-ai/web-llm";
+import {ref, onMounted, watch} from "vue";
 
 const props = defineProps({
   subject: String
@@ -13,70 +13,80 @@ const engineReady = ref(false);
 const error = ref(null);
 let engine;
 
+const MODEL_ID = "Mistral-7B-Instruct-v0.2-q4f16_1-MLC";
+
 const initEngine = async () => {
   try {
-    if (!navigator.gpu) {
-      throw new Error("WebGPU not supported");
-    }
-
+    if (!navigator.gpu) throw new Error("WebGPU not supported");
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) throw new Error("No GPU adapter found");
 
-    console.log("Using GPU:", adapter.info.vendor, adapter.info.architecture);
-
     engine = await CreateMLCEngine(
-        "TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC",
+        MODEL_ID,
         {
           initProgressCallback: (report) => {
             initializationProgress.value = report.progress * 100;
             if (report.progress === 1) engineReady.value = true;
           },
-          gpuAdapter: adapter
+          gpuAdapter: adapter,
+          config: {temperature: 0.3, max_seq_len: 1024}
         }
     );
   } catch (err) {
-    error.value = `Initialization error: ${err.message}`;
-    console.error("Engine init failed:", err);
+    error.value = `Initialization failed: ${err.message}`;
   }
 };
 
 const generateFlashcard = async (topic) => {
   if (!topic?.trim() || !engineReady.value) return;
 
-  try {
-    isLoading.value = true;
-    emit('update:loading', true);
-    error.value = null;
+  isLoading.value = true;
+  emit('update:loading', true);
+  error.value = null;
 
-    const prompt = `Create exactly one flashcard about ${topic}.
-    Format strictly as:
-    Q: [question]
-    A: [answer]
-    No extra text or numbering.`;
+  try {
+    const prompt = `Create a flashcard about "${topic}" with this EXACT format:
+Q: [question testing conceptual understanding]
+A: [concise answer with key points, max 25 words]
+
+Example:
+Q: What is photosynthesis?
+A: Process where plants convert sunlight into energy using chlorophyll, water, and carbon dioxide`;
 
     const response = await engine.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.1,
-      max_tokens: 100,
-      stop: ["\n\n"]
+      messages: [{role: "user", content: prompt}],
+      temperature: 0.3,
+      max_tokens: 150
     });
 
     const content = response.choices[0]?.message?.content || "";
-    const [qLine, aLine] = content.split('\n').filter(l => l.trim());
+    const qaMatch = content.match(/Q:\s*(.+?)\s*A:\s*(.+)/is);
 
-    const question = qLine?.replace(/^Q:\s*/i, '').trim();
-    const answer = aLine?.replace(/^A:\s*/i, '').trim();
+    if (!qaMatch) throw new Error("Invalid format");
 
-    if (question && answer) {
-      emit('update:flashcard', { question, answer });
-    } else {
-      throw new Error("Invalid response format");
+    const question = qaMatch[1].trim();
+    let answer = qaMatch[2].trim();
+
+    // Clean up answer while preserving completeness
+    answer = answer
+        .replace(/\s+/g, ' ')
+        .replace(/, etc\.?/i, '')
+        .replace(/\.$/, '');
+
+    // Split into key points if too long
+    if (answer.split(' ').length > 25) {
+      answer = answer.split(', ')
+          .filter((_, i) => i < 3)
+          .join(', ');
     }
+
+    emit('update:flashcard', {question, answer});
+
   } catch (err) {
-    error.value = "Failed to generate flashcard";
+    error.value = "Couldn't generate flashcard";
     emit('update:flashcard', {
-      question: "Error",
-      answer: "Please try a different topic"
+      question: topic,
+      answer: "Please try again with a different topic"
     });
   } finally {
     isLoading.value = false;
@@ -94,10 +104,25 @@ watch(() => props.subject, generateFlashcard);
       Loading model... {{ initializationProgress.toFixed(0) }}%
       <progress :value="initializationProgress" max="100"></progress>
     </div>
-    <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="error" class="error">
+      {{ error }}
+    </div>
   </div>
 </template>
 
 <style scoped>
+.error {
+  color: #ff4444;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid #ffcccc;
+  border-radius: 6px;
+  background: #fff0f0;
+}
 
+progress {
+  width: 100%;
+  height: 8px;
+  margin: 0.5rem 0;
+}
 </style>
