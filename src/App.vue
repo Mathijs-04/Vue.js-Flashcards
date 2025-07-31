@@ -14,6 +14,7 @@ function handleSubmit(newSubject) {
 </script>
 
 <template>
+  <h1>Vue.js Flashcard Generator</h1>
   <Input @form-submitted="handleSubmit" />
   <div v-if="isLoading">Generating flashcard...</div>
   <LLM
@@ -23,3 +24,9 @@ function handleSubmit(newSubject) {
   />
   <FlashCard :flashcard="flashcard" />
 </template>
+
+<style >
+  html {
+    background-color: #212327;
+  }
+</style>
