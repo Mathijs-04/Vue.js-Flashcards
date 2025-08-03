@@ -1,8 +1,15 @@
 <script setup>
-import { ref } from "vue";
+import {ref} from "vue";
 
 const emit = defineEmits(['form-submitted']);
 const subject = ref('');
+
+defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 function handleForm(event) {
   event.preventDefault();
@@ -21,8 +28,9 @@ function handleForm(event) {
           class="input-field"
           placeholder="Enter a topic..."
           required
+          :disabled="disabled"
       >
-      <button type="submit" class="submit-button">
+      <button type="submit" class="submit-button" :disabled="disabled">
         Generate Flashcard
       </button>
     </form>
@@ -76,6 +84,17 @@ function handleForm(event) {
 
 .submit-button:active {
   transform: translateY(0);
+}
+
+.submit-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.input-field:disabled {
+  background-color: #e2e8f0;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {

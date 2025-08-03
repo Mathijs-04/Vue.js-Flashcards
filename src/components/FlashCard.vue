@@ -9,8 +9,8 @@ defineProps({
 
 <template>
   <div v-if="flashcard && flashcard.question" class="flashcard">
-    <div class="question">Q: {{ flashcard.question }}</div>
-    <div class="answer">A: {{ flashcard.answer }}.</div>
+    <div class="question">{{ flashcard.question }}</div>
+    <div class="answer">{{ flashcard.answer }}.</div>
   </div>
 </template>
 

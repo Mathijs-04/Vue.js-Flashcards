@@ -6,7 +6,7 @@ const props = defineProps({
   subject: String
 });
 
-const emit = defineEmits(['update:flashcard', 'update:loading']);
+const emit = defineEmits(['update:flashcard', 'update:loading', 'update:engine-ready']);
 const isLoading = ref(false);
 const initializationProgress = ref(0);
 const engineReady = ref(false);
@@ -26,7 +26,10 @@ const initEngine = async () => {
         {
           initProgressCallback: (report) => {
             initializationProgress.value = report.progress * 100;
-            if (report.progress === 1) engineReady.value = true;
+            if (report.progress === 1) {
+              engineReady.value = true;
+              emit('update:engine-ready', true);
+            }
           },
           gpuAdapter: adapter,
           config: {temperature: 0.3, max_seq_len: 1024}
@@ -45,13 +48,9 @@ const generateFlashcard = async (topic) => {
   error.value = null;
 
   try {
-    const prompt = `Create a flashcard about "${topic}" with this EXACT format:
+    const prompt = `Create ONE flashcard about "${topic}" with this EXACT format:
 Q: [question testing conceptual understanding]
-A: [concise answer with key points, max 25 words]
-
-Example:
-Q: What is photosynthesis?
-A: Process where plants convert sunlight into energy using chlorophyll, water, and carbon dioxide`;
+A: [concise answer with key points, max 25 words]`
 
     const response = await engine.chat.completions.create({
       messages: [{role: "user", content: prompt}],
@@ -67,13 +66,11 @@ A: Process where plants convert sunlight into energy using chlorophyll, water, a
     const question = qaMatch[1].trim();
     let answer = qaMatch[2].trim();
 
-    // Clean up answer while preserving completeness
     answer = answer
         .replace(/\s+/g, ' ')
         .replace(/, etc\.?/i, '')
         .replace(/\.$/, '');
 
-    // Split into key points if too long
     if (answer.split(' ').length > 25) {
       answer = answer.split(', ')
           .filter((_, i) => i < 3)
@@ -90,6 +87,7 @@ A: Process where plants convert sunlight into energy using chlorophyll, water, a
     });
   } finally {
     isLoading.value = false;
+    emit('update:loading', false);
     emit('update:loading', false);
   }
 };
