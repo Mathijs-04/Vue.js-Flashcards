@@ -1,5 +1,3 @@
-# Vue 3 + Vite
+# Vue 3 + Vite Flashcard Generator
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+This simple application uses AI to generate a flashcard of a topic of your choice. It is using the Mistral-7B-Instruct-v0.2 model by HuggingFace. Vue 3 was used for the front-end. The model runs locally using WebGPU and needs to be downloaded and cached in your browser first. Therefore, first load will take a lot longer than usual. The better your GPU, the faster flashcard generation will be performed. Since the model is running locally in your browser, none of the input data will be stored. Not all browsers support WebGPU, but it supported by most popular browsers like Chrome, Edge, Firefox, and Safari.
